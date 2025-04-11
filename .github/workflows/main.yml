@@ -1,0 +1,37 @@
+name: CI-CD-Android-Project
+
+env:
+  S3_BUCKET_NAME: "android.project.bucket"
+  DEPLOY_PACKAGE_NAME: "project_${{ github.sha }}.zip"
+  AWS_REGION_NAME: "us-east-1"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  my_ci_part:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Git clone our repo
+      uses: actions/checkout@v1
+      
+    - name: Create ZIP deployment package
+      run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x *.git*
+
+    - name: Configure my AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id    :  ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key:  ${{ secrets.AWS_SECRET_KEY }}
+        aws-region           :  ${{ env.AWS_REGION_NAME }}
+
+
+      
+    - name: Copy Deployment package to S3 bucket
+      run: aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }} s3://${{ env.S3_BUCKET_NAME }}/
+    
+    - name: Finish CI part
+      run: echo "CI Pipeline part Finished successfully!"
