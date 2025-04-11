@@ -62,9 +62,7 @@ fun SplashScreen(onStartGame: () -> Unit) {
 }
 @Composable
 fun Game() {
-
     val context = LocalContext.current
-
     val soundPool = remember {
         SoundPool.Builder()
             .setMaxStreams(5)
